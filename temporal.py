@@ -52,8 +52,8 @@ def add_time_window_features(df, w):
                   .mean().shift(1)
     df[avg_col] = temp_avg.values
 
-# Add features for 3,7,14,30 days
-for window in [3, 7, 14, 30]:
+# Add features for 3,7,14,30,365 days
+for window in [3, 7, 14, 30,365]:
     add_time_window_features(df, window)
 
 #Days since previous post
