@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mental Health Risk Assessment | Home</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --secondary: #00cec9;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --border-radius: 0.5rem;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .navbar {
+      background-color: var(--primary);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: white !important;
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+    
+    .result-card {
+      min-height: 200px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      border-radius: var(--border-radius);
+      padding: 0.5rem 2rem;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    textarea.form-control {
+      border-radius: var(--border-radius);
+      min-height: 200px;
+      resize: vertical;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    
+    textarea.form-control:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+    }
+    
+    .risk-meter {
+      height: 200px;
+      position: relative;
+    }
+    
+    .risk-meter-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+    }
+    
+    .risk-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    
+    .risk-level {
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 10px;
+      text-align: center;
+    }
+    
+    .insights-box {
+      background-color: #f8f9fa;
+      border-radius: var(--border-radius);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .insight-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .insight-icon {
+      width: 30px;
+      text-align: center;
+      margin-right: 10px;
+      color: var(--primary);
+    }
+    
+    .insight-meter {
+      flex-grow: 1;
+      height: 8px;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .insight-value {
+      height: 100%;
+      background-color: var(--primary);
+    }
+    
+    .insight-text {
+      width: 100px;
+      text-align: right;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .history-item {
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      background-color: #f8f9fa;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+      background-color: #e9ecef;
+    }
+    
+    .history-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.25rem;
+    }
+    
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
+    .history-score {
+      font-weight: 600;
+    }
+    
+    /* Risk level colors */
+    .risk-low {
+      color: var(--success);
+    }
+    
+    .risk-moderate {
+      color: var(--warning);
+    }
+    
+    .risk-high {
+      color: var(--danger);
+    }
+    
+    .risk-severe {
+      color: #7f0000;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .loading i {
+      font-size: 3rem;
+      color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    footer {
+      background-color: var(--light);
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-brain me-2"></i>
+        Mental Health Assessment
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/"><i class="fas fa-home me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/history"><i class="fas fa-history me-1"></i> History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/resources"><i class="fas fa-hands-helping me-1"></i> Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about"><i class="fas fa-info-circle me-1"></i> About</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-comment-medical me-2"></i>Express Your Thoughts
+          </div>
+          <div class="card-body">
+            <form id="assessment-form" method="post">
+              <div class="mb-3">
+                <label for="user_text" class="form-label">Share how you're feeling or what's on your mind</label>
+                <textarea class="form-control" id="user_text" name="user_text" rows="6" placeholder="Type here... Your responses are private and encrypted"></textarea>
+              </div>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-heart-pulse me-2"></i>Assess
+                </button>
+              </div>
+            </form>
+            <div class="loading mt-3">
+              <i class="fas fa-spinner"></i>
+              <p>Analyzing your input...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-clock-rotate-left me-2"></i>Recent Assessments
+          </div>
+          <div class="card-body">
+            {% if history %}
+              {% for entry in history %}
+                <div class="history-item">
+                  <div class="history-text">{{ entry.text|truncate(60) }}</div>
+                  <div class="history-meta">
+                    <span>{{ entry.timestamp }}</span>
+                    {% set risk = entry.risk_score|float %}
+                    {% if risk < 0.2 %}
+                      <span class="history-score risk-low">{{ "%.1f"|format(risk*100) }}%</span>
+                    {% elif risk < 0.5 %}
+                      <span class="history-score risk-moderate">{{ "%.1f"|format(risk*100) }}%</span>
+                    {% elif risk < 0.8 %}
+                      <span class="history-score risk-high">{{ "%.1f"|format(risk*100) }}%</span>
+                    {% else %}
+                      <span class="history-score risk-severe">{{ "%.1f"|format(risk*100) }}%</span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted text-center">No recent assessments</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% if result %}
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card result-card">
+          <div class="card-header">
+            <i class="fas fa-gauge-high me-2"></i>Risk Assessment
+          </div>
+          <div class="card-body">
+            <div class="risk-meter">
+              <div class="risk-meter-circle">
+                <div class="risk-value risk-{{ result.risk_level.level }}">
+                  {{ "%.1f"|format(result.probability*100) }}%
+                </div>
+              </div>
+              <div class="risk-level risk-{{ result.risk_level.level }}">
+                {{ result.risk_level.level|upper }} RISK
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-8">
+        <div class="card result-card">
+          <div class="card-header">
+            <i class="fas fa-chart-line me-2"></i>Insights
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h5><i class="fas fa-face-sad-tear me-2"></i>Emotional Indicators</h5>
+                <div class="insights-box">
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-heart-crack"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.emotions.sadness*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Sadness</div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.emotions.anxiety*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Anxiety</div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-fire"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.emotions.anger*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Anger</div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-user-slash"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.emotions.loneliness*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Loneliness</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <h5><i class="fas fa-file-lines me-2"></i>Text Patterns</h5>
+                <div class="insights-box">
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-user"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.text_patterns.first_person_focus*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Self Focus</div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-question"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.text_patterns.question_frequency*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Questioning</div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon"><i class="fas fa-ban"></i></div>
+                    <div class="insight-meter">
+                      <div class="insight-value" style="width: {{ result.insights.text_patterns.negative_language*100 }}%;"></div>
+                    </div>
+                    <div class="insight-text">Negativity</div>
+                  </div>
+                  {% if result.insights.self_harm_indicators %}
+                  <div class="alert alert-danger mt-2">
+                    <i class="fas fa-triangle-exclamation me-2"></i>
+                    <strong>Warning:</strong> Potential self-harm indicators detected.
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Note:</strong> This assessment is based on AI analysis and should not replace professional mental health evaluation. If you're experiencing distress, please reach out to a mental health professional.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2025 Mental Health Assessment Tool. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>
+            <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+            <a href="#" class="text-decoration-none text-muted me-3">Terms of Service</a>
+            <a href="#" class="text-decoration-none text-muted">Contact</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('assessment-form');
+      const loading = document.querySelector('.loading');
+      
+      form.addEventListener('submit', function() {
+        // Show loading indicator
+        loading.style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
