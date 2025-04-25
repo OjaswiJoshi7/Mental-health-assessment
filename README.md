@@ -13,62 +13,23 @@ This repository contains a machine learning-based mental health risk assessment 
 ## Model Performance
 
 Our optimized Histogram Gradient Boosting Classifier significantly outperforms baseline approaches:
-
-|
- Model                    
-|
- Accuracy 
-|
- Precision 
-|
- Recall 
-|
- F1 Score 
-|
-|
---------------------------
-|
-----------
-|
------------
-|
---------
-|
-----------
-|
-|
+Accuracy : 
  Logistic Regression      
-|
  69.2%    
-|
- 0.694     
-|
- 0.692  
-|
- 0.691    
-|
-|
+ 
  Hist. Gradient Boosting  
-|
  87.5%    
-|
- 0.889     
-|
- 0.874  
-|
- 0.873    
-|
 
 * ROC AUC: 0.932 (compared to 0.758 for Logistic Regression)
 * Average Precision: 0.949 (compared to 0.785 for Logistic Regression)
 
-## Technology Stack
+##Dependencies
 
-- **Backend**: Flask web framework
-- **Machine Learning**: Scikit-learn, Sentence Transformers
-- **NLP**: NLTK, TextBlob
-- **Frontend**: HTML/CSS, Bootstrap, Chart.js
-- **Data Processing**: Pandas, NumPy
+pip install flask numpy pandas scikit-learn joblib textblob nltk sentence-transformers
+
+#be sure to grab the NLTK data
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
 
 
  
