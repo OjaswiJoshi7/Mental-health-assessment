@@ -1,78 +1,319 @@
-from flask import Flask, render_template, request
-import joblib, re
+from flask import Flask, render_template, request, jsonify
+import joblib
+import re
 import numpy as np
 from textblob import TextBlob
+import nltk
+from nltk.tokenize import word_tokenize
+import string
+import os
+from datetime import datetime
+import pandas as pd
+import uuid
 
 app = Flask(__name__)
 
-# 1) Load your retrained artifacts
-embedder = joblib.load("embedder_sb2.joblib")       # SentenceTransformer
-hgb_model = joblib.load("hgb_emb_final.joblib")     # HistGradientBoostingClassifier
+# === 1) LOAD ARTIFACTS ===
+print("Loading model artifacts...")
+embedder = joblib.load("embedder_mpnet.joblib")       # SentenceTransformer
+model = joblib.load("best_model.joblib")              # Best model from training
+feature_names = joblib.load("feature_names.joblib")   # Feature names for reference
 
-# 2) Self-harm lexicon (must match training)
+# Ensure NLTK resources are available
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+# === 2) DEFINE FEATURE EXTRACTION FUNCTIONS ===
+# Self-harm lexicon (must match training)
 self_harm_terms = [
     r"suicid", r"kill myself", r"end my life", r"hurt myself", r"die by suicide",
     r"take my own life", r"jump off", r"no reason to live", r"slit my wrist",
-    r"overdose", r"cut myself", r"self[- ]harm", r"don't want to live"
+    r"overdose", r"cut myself", r"self[- ]harm", r"don't want to live",
+    r"ending it all", r"better off dead", r"can'?t go on", r"want to die",
+    r"tired of living", r"hate myself", r"worthless", r"give up", r"hopeless"
 ]
+
 def detect_self_harm(text: str) -> int:
     txt = text.lower()
     return int(any(re.search(term, txt) for term in self_harm_terms))
 
-# 3) Rolling-window feature count (11 zeros by default)
+# Emotion lexicons
+emotion_lexicons = {
+    'anxiety': ['worry', 'anxious', 'nervous', 'afraid', 'scared', 'panic', 'fear', 'stress', 'dread', 'phobia'],
+    'sadness': ['sad', 'unhappy', 'miserable', 'depressed', 'heartbroken', 'grief', 'sorrow', 'crying', 'tears', 'despair'],
+    'anger': ['angry', 'mad', 'frustrated', 'annoyed', 'irritated', 'furious', 'rage', 'hate', 'resent', 'bitter'],
+    'loneliness': ['alone', 'lonely', 'isolated', 'abandoned', 'rejected', 'unwanted', 'unloved', 'empty', 'disconnected', 'solitary']
+}
+
+def create_text_features(text):
+    """Extract advanced text features."""
+    text = text.lower()
+    words = word_tokenize(text)
+    stop_words = set(nltk.corpus.stopwords.words('english'))
+    
+    # Basic features
+    word_count = len(words)
+    char_count = len(text)
+    avg_word_len = char_count / max(word_count, 1)
+    
+    # Lexical diversity (unique words / total words)
+    unique_words = len(set(words))
+    diversity = unique_words / max(word_count, 1)
+    
+    # Punctuation percentage
+    punct_count = sum(1 for char in text if char in string.punctuation)
+    punct_percent = punct_count / max(char_count, 1)
+    
+    # Question and exclamation count
+    question_count = text.count('?')
+    exclamation_count = text.count('!')
+    
+    # First-person pronoun count (potential signal for self-focus)
+    first_person = sum(1 for word in words if word.lower() in ['i', 'me', 'my', 'mine', 'myself'])
+    first_person_ratio = first_person / max(word_count, 1)
+    
+    # Emotion detection using lexicons
+    emotion_scores = {}
+    for emotion, terms in emotion_lexicons.items():
+        count = sum(1 for word in words if word in terms)
+        emotion_scores[emotion] = count / max(word_count, 1)
+    
+    # Negative word ratio
+    negative_words = ['not', 'no', 'never', 'none', 'nothing', 'nowhere', 'neither', 'nor', "don't", "can't", "won't"]
+    negative_count = sum(1 for word in words if word in negative_words)
+    negative_ratio = negative_count / max(word_count, 1)
+    
+    # Capital letters percentage (may indicate shouting/emphasis)
+    caps_count = sum(1 for char in text if char.isupper())
+    caps_percent = caps_count / max(char_count, 1)
+    
+    # Return a dictionary of features
+    return {
+        'word_count': word_count,
+        'avg_word_len': avg_word_len,
+        'lexical_diversity': diversity,
+        'punct_percent': punct_percent,
+        'question_count': question_count,
+        'exclamation_count': exclamation_count,
+        'first_person_ratio': first_person_ratio,
+        'anxiety_score': emotion_scores['anxiety'],
+        'sadness_score': emotion_scores['sadness'],
+        'anger_score': emotion_scores['anger'],
+        'loneliness_score': emotion_scores['loneliness'],
+        'negative_ratio': negative_ratio,
+        'caps_percent': caps_percent
+    }
+
+# === 3) TEMPORAL FEATURES (default zeros) ===
 temp_feats = [
-    'posts_last_3d','avg_sent_last_3d',
-    'posts_last_7d','avg_sent_last_7d',
-    'posts_last_14d','avg_sent_last_14d',
-    'posts_last_30d','avg_sent_last_30d',
-    'posts_last_365d','avg_sent_last_365d',
+    'posts_last_3d', 'avg_sent_last_3d',
+    'posts_last_7d', 'avg_sent_last_7d',
+    'posts_last_14d', 'avg_sent_last_14d',
+    'posts_last_30d', 'avg_sent_last_30d',
+    'posts_last_365d', 'avg_sent_last_365d',
     'days_since_prev'
 ]
 
-@app.route("/", methods=["GET","POST"])
-def index():
-    risk_prob = result = None
+# === 4) DATABASE SIMULATION (for storing user entries) ===
+# In a real application, you'd use an actual database
+DATA_FILE = 'user_entries.csv'
 
+def initialize_data_file():
+    """Create the CSV file if it doesn't exist"""
+    if not os.path.exists(DATA_FILE):
+        df = pd.DataFrame(columns=['id', 'timestamp', 'text', 'risk_score'])
+        df.to_csv(DATA_FILE, index=False)
+
+def save_entry(text, risk_score):
+    """Save an entry to our CSV 'database'"""
+    entry_id = str(uuid.uuid4())
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Load existing data
+    df = pd.read_csv(DATA_FILE)
+    
+    # Add new entry
+    new_entry = pd.DataFrame({
+        'id': [entry_id],
+        'timestamp': [timestamp],
+        'text': [text],
+        'risk_score': [risk_score]
+    })
+    
+    # Append and save
+    df = pd.concat([df, new_entry], ignore_index=True)
+    df.to_csv(DATA_FILE, index=False)
+    return entry_id
+
+def get_recent_entries(limit=5):
+    """Get the most recent entries (for history feature)"""
+    if not os.path.exists(DATA_FILE):
+        return []
+    
+    df = pd.read_csv(DATA_FILE)
+    if df.empty:
+        return []
+    
+    # Sort by timestamp (newest first) and take the top entries
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df = df.sort_values('timestamp', ascending=False)
+    recent = df.head(limit)
+    
+    # Convert to list of dicts for template rendering
+    return recent.to_dict('records')
+
+# === 5) PREDICTION FUNCTION ===
+def predict_risk(text):
+    """Run the full prediction pipeline on the input text"""
+    txt_low = text.lower()
+    
+    # Extract sentiment features
+    sentiment = TextBlob(txt_low).sentiment.polarity
+    subjectivity = TextBlob(txt_low).sentiment.subjectivity
+    is_positive = int(sentiment > 0.3)
+    self_harm = detect_self_harm(txt_low)
+    
+    # Placeholder for engagement metrics (would come from user account in real app)
+    upvote_z = 0.0
+    comment_z = 0.0
+    
+    # Extract advanced text features
+    text_features_dict = create_text_features(txt_low)
+    
+    # Create base features array (must match training order)
+    base_features = [
+        sentiment, 
+        subjectivity,
+        is_positive,
+        self_harm,
+        upvote_z,
+        comment_z
+    ]
+    
+    # Add temporal features (all zeros for one-time input)
+    temporal_features = [0.0] * len(temp_feats)
+    
+    # Add text features (in correct order)
+    text_features = [text_features_dict[feat] for feat in feature_names['text_features']]
+    
+    # Combine all numeric features
+    numeric_features = base_features + temporal_features + text_features
+    
+    # Get embedding
+    embedding = embedder.encode([txt_low])[0]  # shape (768,) for mpnet
+    
+    # Combine embedding and numeric features
+    X = np.concatenate([embedding, np.array(numeric_features)])
+    X = X.reshape(1, -1)
+    
+    # Predict risk
+    prob = model.predict_proba(X)[0, 1]
+    
+    # Extract top contributing features
+    feature_insights = {
+        "emotions": {
+            "anxiety": text_features_dict['anxiety_score'],
+            "sadness": text_features_dict['sadness_score'],
+            "anger": text_features_dict['anger_score'],
+            "loneliness": text_features_dict['loneliness_score']
+        },
+        "sentiment": sentiment,
+        "self_harm_indicators": self_harm == 1,
+        "text_patterns": {
+            "first_person_focus": text_features_dict['first_person_ratio'],
+            "question_frequency": text_features_dict['question_count'] / max(len(text.split()), 1),
+            "negative_language": text_features_dict['negative_ratio']
+        }
+    }
+    
+    return {
+        "probability": prob,
+        "risk_level": get_risk_level(prob),
+        "insights": feature_insights
+    }
+
+def get_risk_level(probability):
+    """Convert probability to risk level category"""
+    if probability < 0.2:
+        return {"level": "low", "color": "green"}
+    elif probability < 0.5:
+        return {"level": "moderate", "color": "orange"}
+    elif probability < 0.8:
+        return {"level": "high", "color": "red"}
+    else:
+        return {"level": "severe", "color": "darkred"}
+
+# === 6) FLASK ROUTES ===
+@app.route("/", methods=["GET", "POST"])
+def index():
+    """Main page route"""
+    result = None
+    analysis_id = None
+    history = get_recent_entries(5)
+    
     if request.method == "POST":
         user_text = request.form["user_text"].strip()
-        txt_low = user_text.lower()
+        
+        if user_text:
+            # Get prediction
+            result = predict_risk(user_text)
+            
+            # Save to our "database"
+            analysis_id = save_entry(user_text, result["probability"])
+            
+            # Refresh history
+            history = get_recent_entries(5)
+    
+    return render_template(
+        "index_improved.html", 
+        result=result, 
+        analysis_id=analysis_id,
+        history=history
+    )
 
-        # ——— A) Numeric features ———
-        sentiment   = TextBlob(txt_low).sentiment.polarity
-        is_positive = int(sentiment > 0.3)
-        self_harm   = detect_self_harm(txt_low)
-        upvote_z    = 0.0
-        comment_z   = 0.0
-        rolling     = [0.0] * len(temp_feats)   # eleven zeros
+@app.route("/api/analyze", methods=["POST"])
+def api_analyze():
+    """API endpoint for AJAX analysis"""
+    data = request.json
+    user_text = data.get("text", "").strip()
+    
+    if not user_text:
+        return jsonify({"error": "No text provided"}), 400
+    
+    # Get prediction
+    result = predict_risk(user_text)
+    
+    # Save entry
+    analysis_id = save_entry(user_text, result["probability"])
+    
+    # Add ID to result
+    result["id"] = analysis_id
+    
+    return jsonify(result)
 
-        num_feats = [
-            sentiment,
-            is_positive,
-            self_harm,
-            upvote_z,
-            comment_z
-        ] + rolling                              # total = 5 + 11 = 16 dims
+@app.route("/history")
+def history():
+    """View history of analyses"""
+    entries = get_recent_entries(20)  # Show more in dedicated history page
+    return render_template("history.html", entries=entries)
 
-        # ——— B) SBERT embedding (384 dims) ———
-        emb = embedder.encode([txt_low])[0]      # shape (384,)
+@app.route("/about")
+def about():
+    """About page with information about the model"""
+    return render_template("about.html")
 
-        # ——— C) Build & reshape the feature vector ———
-        X = np.concatenate([emb, np.array(num_feats)])   # shape (400,)
-        X = X.reshape(1, -1)                             # shape (1, 400)
+@app.route("/resources")
+def resources():
+    """Mental health resources page"""
+    return render_template("resources.html")
 
-        # sanity‐check we have the right number of features
-        if X.shape[1] != hgb_model.n_features_in_:
-            raise ValueError(
-                f"Model was trained on {hgb_model.n_features_in_} features, "
-                f"but received {X.shape[1]}."
-            )
-
-        # ——— D) Predict risk ———
-        prob = hgb_model.predict_proba(X)[0, 1]
-        risk_prob = f"{prob*100:.1f}%"
-        result    = "AT RISK" if prob > 0.5 else "NOT AT RISK"
-
-    return render_template("index.html", risk_prob=risk_prob, result=result)
-
+# === 7) INITIALIZE AND RUN ===
 if __name__ == "__main__":
+    initialize_data_file()
     app.run(debug=True)
