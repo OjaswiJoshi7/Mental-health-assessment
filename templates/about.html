@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About | Mental Health Assessment</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --secondary: #00cec9;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --border-radius: 0.5rem;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .navbar {
+      background-color: var(--primary);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: white !important;
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .card-header {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+    
+    .section-title {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+      color: var(--primary);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .accordion-button:not(.collapsed) {
+      background-color: rgba(108, 92, 231, 0.1);
+      color: var(--primary);
+      box-shadow: none;
+    }
+    
+    .accordion-button:focus {
+      box-shadow: none;
+      border-color: rgba(108, 92, 231, 0.25);
+    }
+    
+    .team-member {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .team-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .team-name {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .team-role {
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    footer {
+      background-color: var(--light);
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-brain me-2"></i>
+        Mental Health Assessment
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/history"><i class="fas fa-history me-1"></i> History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/resources"><i class="fas fa-hands-helping me-1"></i> Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/about"><i class="fas fa-info-circle me-1"></i> About</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="mb-4">About Our Mental Health Assessment Tool</h1>
+    
+    <div class="row mb-5">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-info-circle me-2"></i>Our Mission
+          </div>
+          <div class="card-body">
+            <p class="lead">Our mission is to leverage advanced artificial intelligence to provide accessible mental health risk assessment tools that help identify potential concerns early, connect individuals with appropriate resources, and support overall wellbeing.</p>
+            
+            <p>We believe in making mental health monitoring accessible to everyone. Our AI-powered tool analyzes text patterns, linguistic features, and emotional expressions to identify potential signs of mental health concerns, particularly focusing on depression and self-harm risk indicators.</p>
+            
+            <div class="alert alert-info mt-4">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <strong>Important Disclaimer:</strong> This tool is designed for educational and informational purposes only. It is not intended to replace professional mental health evaluations or clinical diagnoses. Always consult with qualified mental health professionals for proper assessment and treatment.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <h2 class="section-title">
+      <i class="fas fa-cogs me-2"></i>How Our Technology Works
+    </h2>
+    
+    <div class="row mb-5">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="fas fa-robot feature-icon"></i>
+            <h4>Advanced AI Models</h4>
+            <p>Our system uses natural language processing and machine learning models trained on diverse datasets to recognize patterns associated with various mental health states.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="fas fa-brain feature-icon"></i>
+            <h4>Comprehensive Analysis</h4>
+            <p>Beyond simple keyword matching, our system evaluates sentiment, emotion, linguistic patterns, self-referential language, and temporal features to provide a holistic assessment.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="fas fa-lock feature-icon"></i>
+            <h4>Privacy-Focused</h4>
+            <p>Your data privacy is paramount. All text analysis happens securely, and we implement strict data protection protocols to ensure confidentiality.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mental Health Resources | Mental Health Assessment</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --secondary: #00cec9;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --border-radius: 0.5rem;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .navbar {
+      background-color: var(--primary);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: white !important;
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+    
+    .resource-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .emergency-box {
+      background-color: #ffecec;
+      border-left: 5px solid var(--danger);
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 2rem;
+    }
+    
+    .emergency-box h3 {
+      color: var(--danger);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .emergency-phone {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--danger);
+      display: block;
+      margin: 0.5rem 0;
+    }
+    
+    footer {
+      background-color: var(--light);
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .resource-list li {
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px dashed #e0e0e0;
+    }
+    
+    .resource-list li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-brain me-2"></i>
+        Mental Health Assessment
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/history"><i class="fas fa-history me-1"></i> History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/resources"><i class="fas fa-hands-helping me-1"></i> Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about"><i class="fas fa-info-circle me-1"></i> About</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="mb-4">Mental Health Resources</h1>
+    
+    <div class="emergency-box">
+      <h3><i class="fas fa-exclamation-triangle me-2"></i>Emergency Resources</h3>
+      <p>If you or someone you know is in immediate danger or considering suicide, please reach out to these emergency resources:</p>
+      <a href="tel:988" class="emergency-phone"><i class="fas fa-phone me-2"></i>988 - Suicide & Crisis Lifeline</a>
+      <p>The 988 Suicide & Crisis Lifeline is available 24/7 across the United States.</p>
+      <a href="tel:911" class="emergency-phone"><i class="fas fa-phone me-2"></i>911 - Emergency Services</a>
+      <p>Call 911 for immediate emergency response if you are in danger or in crisis.</p>
+    </div>
+    
+    <div class="row mb-4">
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-phone me-2"></i>Helplines & Hotlines
+          </div>
+          <div class="card-body">
+            <div class="text-center mb-3">
+              <i class="fas fa-headset resource-icon"></i>
+            </div>
+            <ul class="resource-list ps-0" style="list-style-type: none;">
+              <li><strong>988 Suicide & Crisis Lifeline</strong><br>24/7 support for people in distress<br>Call: 988</li>
+              <li><strong>Crisis Text Line</strong><br>Text HOME to 741741 for crisis support</li>
+              <li><strong>Veterans Crisis Line</strong><br>Call: 988, Press 1<br>Text: 838255</li>
+              <li><strong>The Trevor Project (LGBTQ+)</strong><br>Call: 1-866-488-7386<br>Text START to 678678</li>
+              <li><strong>SAMHSA's National Helpline</strong><br>1-800-662-HELP (4357)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-laptop me-2"></i>Online Resources
+          </div>
+          <div class="card-body">
+            <div class="text-center mb-3">
+              <i class="fas fa-globe resource-icon"></i>
+            </div>
+            <ul class="resource-list ps-0" style="list-style-type: none;">
+              <li><a href="https://www.nami.org" target="_blank">National Alliance on Mental Illness (NAMI)</a><br>Information, support, and advocacy</li>
+              <li><a href="https://www.nimh.nih.gov" target="_blank">National Institute of Mental Health</a><br>Research and educational resources</li>
+              <li><a href="https://www.mhanational.org" target="_blank">Mental Health America</a><br>Screening tools and resources</li>
+              <li><a href="https://www.thehotline.org" target="_blank">National Domestic Violence Hotline</a><br>Support for relationship abuse</li>
+              <li><a href="https://www.psychologytoday.com/us/therapists" target="_blank">Psychology Today Therapist Finder</a><br>Search for therapists in your area</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-mobile-alt me-2"></i>Apps & Self-Help
+          </div>
+          <div class="card-body">
+            <div class="text-center mb-3">
+              <i class="fas fa-heart resource-icon"></i>
+            </div>
+            <ul class="resource-list ps-0" style="list-style-type: none;">
+              <li><strong>Calm</strong><br>Meditation and relaxation app</li>
+              <li><strong>Headspace</strong><br>Guided meditation and mindfulness</li>
+              <li><strong>Moodfit</strong><br>Mood tracking and improvement tools</li>
+              <li><strong>Woebot</strong><br>AI-based cognitive behavioral therapy</li>
+              <li><strong>Talkspace</strong><br>Online therapy platform</li>
+              <li><strong>BetterHelp</strong><br>Professional online counseling</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2025 Mental Health Assessment Tool. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>
+            <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+            <a href="#" class="text-decoration-none text-muted me-3">Terms of Service</a>
+            <a href="#" class="text-decoration-none text-muted">Contact</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

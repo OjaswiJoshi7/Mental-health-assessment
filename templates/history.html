@@ -1,0 +1,382 @@
+
+// @ts-nocheck
+document.addEventListener('DOMContentLoaded', function() {
+// Get entry data from template
+const entries = {{ entries|tojson|safe }};
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assessment History | Mental Health Assessment</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --primary-light: #a29bfe;
+      --secondary: #00cec9;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+      --border-radius: 0.5rem;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .navbar {
+      background-color: var(--primary);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: white !important;
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .card-header {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+    
+    .history-item {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .history-date {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    
+    .history-text {
+      margin: 0.5rem 0;
+      font-style: italic;
+    }
+    
+    .risk-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    
+    .risk-low {
+      background-color: rgba(0, 184, 148, 0.2);
+      color: #00b894;
+    }
+    
+    .risk-moderate {
+      background-color: rgba(253, 203, 110, 0.2);
+      color: #fdcb6e;
+    }
+    
+    .risk-high {
+      background-color: rgba(214, 48, 49, 0.2);
+      color: #d63031;
+    }
+    
+    .risk-severe {
+      background-color: rgba(127, 0, 0, 0.2);
+      color: #7f0000;
+    }
+    
+    .chart-container {
+      height: 300px;
+      margin-bottom: 2rem;
+    }
+    
+    footer {
+      background-color: var(--light);
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+    
+    .empty-state-icon {
+      font-size: 4rem;
+      color: #e0e0e0;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-brain me-2"></i>
+        Mental Health Assessment
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/history"><i class="fas fa-history me-1"></i> History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/resources"><i class="fas fa-hands-helping me-1"></i> Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about"><i class="fas fa-info-circle me-1"></i> About</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="mb-4">Your Assessment History</h1>
+    
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="fas fa-chart-line me-2"></i>Risk Trend Analysis
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="riskTrendChart"></canvas>
+        </div>
+        <p class="text-muted text-center">This chart shows your risk assessment scores over time. Monitoring trends can help identify patterns and progress.</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-list-ul me-2"></i>Past Assessments
+      </div>
+      <div class="card-body p-0">
+        {% if entries %}
+          {% for entry in entries %}
+            <div class="history-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="history-date">
+                  <i class="fas fa-calendar-alt me-2"></i>
+                  {{ entry.timestamp }}
+                </span>
+                
+                {% set risk = entry.risk_score|float %}
+                {% if risk < 0.2 %}
+                  <span class="risk-badge risk-low">
+                    <i class="fas fa-check-circle me-1"></i>Low Risk ({{ "%.1f"|format(risk*100) }}%)
+                  </span>
+                {% elif risk < 0.5 %}
+                  <span class="risk-badge risk-moderate">
+                    <i class="fas fa-exclamation-circle me-1"></i>Moderate Risk ({{ "%.1f"|format(risk*100) }}%)
+                  </span>
+                {% elif risk < 0.8 %}
+                  <span class="risk-badge risk-high">
+                    <i class="fas fa-exclamation-triangle me-1"></i>High Risk ({{ "%.1f"|format(risk*100) }}%)
+                  </span>
+                {% else %}
+                  <span class="risk-badge risk-severe">
+                    <i class="fas fa-radiation me-1"></i>Severe Risk ({{ "%.1f"|format(risk*100) }}%)
+                  </span>
+                {% endif %}
+              </div>
+              
+              <div class="history-text">
+                "{{ entry.text }}"
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fas fa-history"></i>
+            </div>
+            <h3>No Assessments Yet</h3>
+            <p>Your assessment history will appear here once you complete your first assessment.</p>
+            <a href="/" class="btn btn-primary mt-3">
+              <i class="fas fa-arrow-left me-2"></i>Go to Assessment
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2025 Mental Health Assessment Tool. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>
+            <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+            <a href="#" class="text-decoration-none text-muted me-3">Terms of Service</a>
+            <a href="#" class="text-decoration-none text-muted">Contact</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Chart.js Initialization -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get entry data from template
+      const entries = {{ entries|tojson|safe if entries else '[]' }};
+      
+      if (entries.length > 0) {
+        // Format data for chart
+        const labels = entries.map(entry => {
+          const date = new Date(entry.timestamp);
+          return date.toLocaleDateString();
+        }).reverse();
+        
+        const data = entries.map(entry => entry.risk_score * 100).reverse();
+        
+        // Create risk level thresholds for chart
+        const lowRiskThreshold = Array(labels.length).fill(20);
+        const moderateRiskThreshold = Array(labels.length).fill(50);
+        const highRiskThreshold = Array(labels.length).fill(80);
+        
+        // Initialize chart
+        const ctx = document.getElementById('riskTrendChart').getContext('2d');
+        const chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Risk Score (%)',
+                data: data,
+                backgroundColor: 'rgba(108, 92, 231, 0.2)',
+                borderColor: 'rgba(108, 92, 231, 1)',
+                borderWidth: 3,
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 7
+              },
+              {
+                label: 'Low Risk Threshold',
+                data: lowRiskThreshold,
+                borderColor: 'rgba(0, 184, 148, 0.5)',
+                borderWidth: 1,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false
+              },
+              {
+                label: 'Moderate Risk Threshold',
+                data: moderateRiskThreshold,
+                borderColor: 'rgba(253, 203, 110, 0.5)',
+                borderWidth: 1,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false
+              },
+              {
+                label: 'High Risk Threshold',
+                data: highRiskThreshold,
+                borderColor: 'rgba(214, 48, 49, 0.5)',
+                borderWidth: 1,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'Risk Score (%)'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Date'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      label += context.parsed.y.toFixed(1) + '%';
+                    }
+                    return label;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
