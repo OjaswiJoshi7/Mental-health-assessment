@@ -54,6 +54,11 @@ For the enhanced version with additional features:
 - `feature_names.joblib`: Feature reference data
 - `user_entries.csv`: History tracking database
 
+##How to Use it?
+
+After unzipping the code from GitHub,installing all the dependencies, and acquiring the required dataset, cd into the directory and run the mentalhealth.py app by typing python mentalhealthapplication.py
+
+Please contact me at ojj224@lehigh.edu if something does not work!
 
 
 
