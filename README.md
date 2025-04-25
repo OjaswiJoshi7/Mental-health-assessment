@@ -41,6 +41,20 @@ Reddit multi temporal
 https://drive.google.com/file/d/1hgxQGr9ORC8mbGmcGnsUgG5_VY5ONxeb/view?usp=sharing
 
 
+## Required Files
+
+The application requires the following model artifacts:
+
+- `vectorizer_final.joblib`: Text vectorization model
+- `lda_final.joblib`: LDA topic model
+- `hgb_final.joblib`: Histogram Gradient Boosting classifier
+
+For the enhanced version with additional features:
+- `embedder_mpnet.joblib`: Sentence Transformer model
+- `feature_names.joblib`: Feature reference data
+- `user_entries.csv`: History tracking database
+
+
 
 
  
