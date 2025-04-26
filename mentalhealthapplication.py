@@ -155,8 +155,7 @@ temp_feats = [
 ]
 
 # === 4) DATABASE SIMULATION (for storing user entries) ===
-# In a real application, you'd use an actual database
-DATA_FILE = 'user_entries.csv'
+DATA_FILE = os.path.join(os.environ.get('TMPDIR', '/tmp'), 'user_entries.csv')
 
 def initialize_data_file():
     """Create the CSV file if it doesn't exist"""
@@ -350,4 +349,5 @@ def resources():
 # === 7) INITIALIZE AND RUN ===
 if __name__ == "__main__":
     initialize_data_file()
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
