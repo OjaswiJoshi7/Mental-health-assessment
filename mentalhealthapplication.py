@@ -15,25 +15,77 @@ app = Flask(__name__)
 
 # === 1) LOAD ARTIFACTS ===
 print("Loading model artifacts...")
-# === 1) LOAD ARTIFACTS ===
-print("Loading model artifacts...")
+
+# Import necessary libraries for fallbacks
+from sentence_transformers import SentenceTransformer
+import torch
+from sklearn.ensemble import HistGradientBoostingClassifier
+
+# Function to safely load model files with appropriate fallbacks
+def safe_load(filename, fallback_function=None):
+    try:
+        print(f"Attempting to load {filename}...")
+        loaded_obj = joblib.load(filename)
+        print(f"Successfully loaded {filename}")
+        return loaded_obj
+    except Exception as e:
+        print(f"Error loading {filename}: {str(e)}")
+        if fallback_function:
+            print(f"Using fallback for {filename}")
+            return fallback_function()
+        else:
+            raise Exception(f"Failed to load {filename} and no fallback provided")
+
+# Define fallback functions for each model
+
+# Embedder fallback
+def embedder_fallback():
+    print("Creating new SentenceTransformer model...")
+    return SentenceTransformer('all-mpnet-base-v2')
+
+# Model fallback - create a simple HistGradientBoostingClassifier
+def model_fallback():
+    print("Creating simple HistGradientBoostingClassifier...")
+    return HistGradientBoostingClassifier(
+        max_iter=100,
+        learning_rate=0.1,
+        max_depth=5,
+        random_state=42
+    )
+
+# Feature names fallback
+def feature_names_fallback():
+    print("Creating default feature names structure...")
+    return {
+        'text_features': [
+            'word_count', 'avg_word_len', 'lexical_diversity', 
+            'punct_percent', 'question_count', 'exclamation_count', 
+            'first_person_ratio', 'anxiety_score', 'sadness_score', 
+            'anger_score', 'loneliness_score', 'negative_ratio', 
+            'caps_percent'
+        ]
+    }
+
+# Load embedder with special handling for device
 try:
-    print("Attempting to load saved SentenceTransformer model...")
-    embedder = joblib.load("embedder_mpnet.joblib")       # SentenceTransformer
+    embedder = safe_load("embedder_mpnet.joblib", embedder_fallback)
     
-    # Ensure it's on CPU if the model has a 'to' method
-    import torch
+    # Ensure it's on CPU if needed
     if hasattr(embedder, 'to') and hasattr(torch, 'cuda') and torch.cuda.is_available():
         embedder = embedder.to('cpu')
-    print("Successfully loaded saved SentenceTransformer model")
 except Exception as e:
-    print(f"Could not load saved model due to: {str(e)}")
-    print("Loading SentenceTransformer model from scratch...")
-    from sentence_transformers import SentenceTransformer
+    print(f"Critical error with embedder: {str(e)}")
+    # Create a new embedder as a last resort
+    print("Creating new embedder as last resort...")
     embedder = SentenceTransformer('all-mpnet-base-v2')
 
-model = joblib.load("best_model.joblib")              # Best model from training
-feature_names = joblib.load("feature_names.joblib")   # Feature names for reference
+# Load other models with their fallbacks
+try:
+    model = safe_load("best_model.joblib", model_fallback)
+    feature_names = safe_load("feature_names.joblib", feature_names_fallback)
+except Exception as e:
+    print(f"Critical error loading supporting models: {str(e)}")
+    raise
 
 # Ensure NLTK resources are available
 try:
