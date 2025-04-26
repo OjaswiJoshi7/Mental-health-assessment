@@ -1,0 +1,9 @@
+Flask
+numpy
+pandas
+scikit-learn
+joblib
+textblob
+nltk
+sentence-transformers
+gunicorn
