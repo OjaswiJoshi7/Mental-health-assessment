@@ -7,3 +7,5 @@ textblob
 nltk
 sentence-transformers
 gunicorn
+streamlit
+torch

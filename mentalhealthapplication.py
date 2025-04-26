@@ -15,7 +15,23 @@ app = Flask(__name__)
 
 # === 1) LOAD ARTIFACTS ===
 print("Loading model artifacts...")
-embedder = joblib.load("embedder_mpnet.joblib")       # SentenceTransformer
+# === 1) LOAD ARTIFACTS ===
+print("Loading model artifacts...")
+try:
+    print("Attempting to load saved SentenceTransformer model...")
+    embedder = joblib.load("embedder_mpnet.joblib")       # SentenceTransformer
+    
+    # Ensure it's on CPU if the model has a 'to' method
+    import torch
+    if hasattr(embedder, 'to') and hasattr(torch, 'cuda') and torch.cuda.is_available():
+        embedder = embedder.to('cpu')
+    print("Successfully loaded saved SentenceTransformer model")
+except Exception as e:
+    print(f"Could not load saved model due to: {str(e)}")
+    print("Loading SentenceTransformer model from scratch...")
+    from sentence_transformers import SentenceTransformer
+    embedder = SentenceTransformer('all-mpnet-base-v2')
+
 model = joblib.load("best_model.joblib")              # Best model from training
 feature_names = joblib.load("feature_names.joblib")   # Feature names for reference
 
