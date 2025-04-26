@@ -219,7 +219,7 @@ def predict_risk(text):
     temporal_features = [0.0] * len(temp_feats)
     
     # Add text features
-    text_features = [text_features_dict[feat] for feat in feature_names['text_features']]
+    text_features = [text_features_dict.get(feat, 0) for feat in feature_names['text_features']]
     
     # Combine all numeric features
     numeric_features = base_features + temporal_features + text_features
@@ -241,8 +241,8 @@ def predict_risk(text):
     prob = (
         (1 - (sentiment + 1) / 2) * sentiment_weight +  # Invert sentiment so negative is higher risk
         self_harm * self_harm_weight +
-        text_features_dict['anxiety_score'] * anxiety_weight +
-        text_features_dict['sadness_score'] * sadness_weight
+        text_features_dict.get('anxiety_score', 0) * anxiety_weight +
+        text_features_dict.get('sadness_score', 0) * sadness_weight
     )
     # Ensure it's between 0 and 1
     prob = max(0, min(1, prob))
@@ -250,17 +250,17 @@ def predict_risk(text):
     # Extract feature insights
     feature_insights = {
         "emotions": {
-            "anxiety": text_features_dict['anxiety_score'],
-            "sadness": text_features_dict['sadness_score'],
-            "anger": text_features_dict['anger_score'],
-            "loneliness": text_features_dict['loneliness_score']
+            "anxiety": text_features_dict.get('anxiety_score', 0),
+            "sadness": text_features_dict.get('sadness_score', 0),
+            "anger": text_features_dict.get('anger_score', 0),
+            "loneliness": text_features_dict.get('loneliness_score', 0)
         },
         "sentiment": sentiment,
         "self_harm_indicators": self_harm == 1,
         "text_patterns": {
-            "first_person_focus": text_features_dict['first_person_ratio'],
-            "question_frequency": text_features_dict['question_count'] / max(len(text.split()), 1),
-            "negative_language": text_features_dict['negative_ratio']
+            "first_person_focus": text_features_dict.get('first_person_ratio', 0),
+            "question_frequency": text_features_dict.get('question_count', 0) / max(len(text.split()), 1),
+            "negative_language": text_features_dict.get('negative_ratio', 0)
         }
     }
     
@@ -334,11 +334,11 @@ def main():
                     st.markdown("**Additional Indicators:**")
                     cols = st.columns(3)
                     with cols[0]:
-                        st.metric("Self-harm Language", "Detected" if insights["self_harm_indicators"] else "Not Detected")
+                        st.metric("Self-harm Language", "Detected" if insights.get("self_harm_indicators", False) else "Not Detected")
                     with cols[1]:
-                        st.metric("Sentiment", f"{insights['sentiment']:.2f}", "-1.0 = Negative, +1.0 = Positive")
+                        st.metric("Sentiment", f"{insights.get('sentiment', 0):.2f}", "-1.0 = Negative, +1.0 = Positive")
                     with cols[2]:
-                        st.metric("Self-focus", f"{insights['text_patterns']['first_person_ratio']:.2f}", "First-person pronoun usage")
+                        st.metric("Self-focus", f"{insights.get('text_patterns', {}).get('first_person_focus', 0):.2f}", "First-person pronoun usage")
             else:
                 st.warning("Please enter some text for analysis.")
     
