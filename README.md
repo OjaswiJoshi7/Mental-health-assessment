@@ -61,5 +61,11 @@ After unzipping the code from GitHub,installing all the dependencies, and acquir
 Please contact me at ojj224@lehigh.edu if something does not work!
 
 
+Had to fall back on:
+Streamlit.py  because there was some error with me trying to upload my actual app on Streamlit
+ngrok URL https://d13e-128-180-197-72.ngrok-free.app/
+
+
+
 
  
